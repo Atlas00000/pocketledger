@@ -31,8 +31,12 @@ import { Alert, AlertDescription } from '@/components/ui/alert'
 import Link from 'next/link'
 import { PasswordStrength } from '@/components/password-strength'
 import { ThemeToggle } from '@/components/theme-toggle'
+import { useRouter } from 'next/navigation'
+import { auth } from '@/lib/auth'
+import { supabase } from '@/lib/supabase'
 
 export default function SignUp() {
+  const router = useRouter()
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [showPassword, setShowPassword] = useState(false)
@@ -58,13 +62,35 @@ export default function SignUp() {
 
   const password = watch('password', '')
 
-  const handleSubmitForm = async (e: React.FormEvent) => {
-    e.preventDefault()
+  const onSubmit = async (data: SignUpFormData) => {
     try {
       setIsLoading(true)
       setError(null)
-      // TODO: Implement sign up logic with Supabase
-      console.log("Sign up attempt:", formData)
+
+      const { error: signUpError } = await supabase.auth.signUp({
+        email: data.email,
+        password: data.password,
+        options: {
+          emailRedirectTo: `${window.location.origin}/dashboard`,
+          data: {
+            first_name: formData.firstName,
+            last_name: formData.lastName,
+          }
+        },
+      })
+
+      if (signUpError) throw signUpError
+
+      // Sign in immediately after signup
+      const { error: signInError } = await supabase.auth.signInWithPassword({
+        email: data.email,
+        password: data.password,
+      })
+
+      if (signInError) throw signInError
+
+      router.push('/dashboard')
+      router.refresh()
     } catch (err) {
       setError(err instanceof Error ? err.message : 'An error occurred during sign up')
     } finally {
@@ -141,7 +167,7 @@ export default function SignUp() {
                 </Alert>
               )}
 
-              <form onSubmit={handleSubmit(handleSubmitForm)} className="space-y-4">
+              <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <Label htmlFor="firstName">First Name</Label>
@@ -294,7 +320,7 @@ export default function SignUp() {
                     {isLoading ? (
                       <LoadingSpinner className="mr-2" />
                     ) : null}
-                    Create Account
+                    Sign Up
                   </Button>
                 </motion.div>
               </form>
@@ -340,7 +366,7 @@ export default function SignUp() {
                 <p className="text-sm text-gray-600 dark:text-gray-400">
                   Already have an account?{" "}
                   <Link
-                    href="/signin"
+                    href="/login"
                     className="text-green-600 dark:text-green-400 hover:text-green-700 dark:hover:text-green-300 font-medium transition-colors"
                   >
                     Sign in
