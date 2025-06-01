@@ -50,6 +50,9 @@ import {
   ExternalLink,
 } from "lucide-react"
 import { ThemeToggle } from "@/components/theme-toggle"
+import { smoothScrollTo } from "@/lib/utils"
+import { transitions } from "@/lib/utils"
+import Link from 'next/link'
 
 export default function Homepage() {
   const [isVisible, setIsVisible] = useState(false)
@@ -274,41 +277,56 @@ export default function Homepage() {
                   { name: "Pricing", href: "/pricing" },
                   { name: "About", href: "/about" },
                 ].map((item, index) => (
-                  <motion.a
-                    key={item.name}
-                    href={item.href}
-                    className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors relative"
-                    whileHover={{ y: -2 }}
-                    transition={{ type: "spring", stiffness: 400, damping: 10 }}
-                  >
-                    {item.name}
-                    {item.name === "Dashboard" && (
-                      <motion.div
-                        className="absolute -top-1 -right-1 w-2 h-2 bg-green-500 rounded-full"
-                        animate={{ scale: [1, 1.2, 1] }}
-                        transition={{ duration: 2, repeat: Number.POSITIVE_INFINITY }}
-                      />
-                    )}
-                  </motion.a>
+                  item.href.startsWith('#') ? (
+                    <motion.a
+                      key={item.name}
+                      href={item.href}
+                      onClick={(e) => {
+                        e.preventDefault()
+                        smoothScrollTo(item.href.slice(1))
+                      }}
+                      className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors relative"
+                      whileHover={{ y: -2 }}
+                      transition={transitions.smooth}
+                    >
+                      {item.name}
+                    </motion.a>
+                  ) : (
+                    <Link
+                      key={item.name}
+                      href={item.href}
+                      prefetch={true}
+                      className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors relative"
+                    >
+                      <motion.span
+                        whileHover={{ y: -2 }}
+                        transition={transitions.smooth}
+                      >
+                        {item.name}
+                        {item.name === "Dashboard" && (
+                          <motion.div
+                            className="absolute -top-1 -right-1 w-2 h-2 bg-green-500 rounded-full"
+                            animate={{ scale: [1, 1.2, 1] }}
+                            transition={{ duration: 2, repeat: Number.POSITIVE_INFINITY }}
+                          />
+                        )}
+                      </motion.span>
+                    </Link>
+                  )
                 ))}
               </div>
 
               <div className="flex items-center space-x-4">
                 <ThemeToggle />
-                <motion.a
-                  href="/signin"
-                  className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors"
-                  whileHover={{ y: -2 }}
-                  transition={{ type: "spring", stiffness: 400, damping: 10 }}
+                <motion.div
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
                 >
-                  Sign In
-                </motion.a>
-                <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
                   <Button
                     asChild
                     className="bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 border-0"
                   >
-                    <a href="/signup">Sign Up</a>
+                    <a href="/dashboard">Go to Dashboard</a>
                   </Button>
                 </motion.div>
               </div>
@@ -374,8 +392,7 @@ export default function Homepage() {
                 <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
                   <Button
                     size="lg"
-                    variant="outline"
-                    className="text-lg px-8 py-6 border-gray-900/20 text-gray-900 hover:bg-gray-900/10"
+                    className="bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-lg px-8 py-6 border-0 shadow-lg"
                   >
                     <Eye className="mr-2 w-5 h-5" />
                     Watch Demo
@@ -418,13 +435,14 @@ export default function Homepage() {
             transition={{ delay: 2, duration: 1 }}
             className="absolute bottom-8 left-1/2 transform -translate-x-1/2"
           >
-            <motion.div
+            <motion.button
+              onClick={() => smoothScrollTo('features')}
               animate={{ y: [0, 10, 0] }}
               transition={{ duration: 2, repeat: Number.POSITIVE_INFINITY }}
-              className="text-gray-500 cursor-pointer"
+              className="text-gray-500 cursor-pointer hover:text-gray-700 dark:hover:text-gray-300 transition-colors"
             >
               <ChevronDown className="w-6 h-6" />
-            </motion.div>
+            </motion.button>
           </motion.div>
         </section>
 
@@ -490,7 +508,7 @@ export default function Homepage() {
         </section>
 
         {/* Features Section */}
-        <section id="features" className="py-20 px-4 sm:px-6 lg:px-8 relative">
+        <section id="features" className="py-20 px-4 sm:px-6 lg:px-8 relative scroll-mt-20">
           <motion.div style={{ y: y2 }} className="absolute inset-0 opacity-20">
             <div className="absolute top-0 right-0 w-96 h-96 bg-gradient-to-l from-green-500 to-transparent dark:from-green-600 rounded-full filter blur-3xl"></div>
           </motion.div>
@@ -499,8 +517,8 @@ export default function Homepage() {
             <motion.div
               initial={{ opacity: 0, y: 50 }}
               whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8 }}
-              viewport={{ once: true }}
+              transition={transitions.smooth}
+              viewport={{ once: true, margin: "-100px" }}
               className="text-center mb-16"
             >
               <h2 className="text-4xl md:text-5xl font-bold mb-6">

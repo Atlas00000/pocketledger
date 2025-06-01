@@ -65,8 +65,7 @@ import {
   ExternalLink,
   PiggyBank,
   X,
-  Switch,
-  Info,
+  ToggleLeft,
 } from "lucide-react"
 import { ThemeToggle } from "@/components/theme-toggle"
 
@@ -666,18 +665,18 @@ export default function Dashboard() {
     },
   ]
 
-  const [userName] = useState(() => {
-    // In a real app, this would come from your authentication system
-    // For now, we'll use a default name that can be customized
-    return localStorage.getItem('userName') || 'Alex'
+  const [userName, setUserName] = useState('Alex')
+  const [currentTime] = useState(() => {
+    return new Date().toLocaleTimeString()
   })
 
-  const [currentTime] = useState(() => {
-    const hour = new Date().getHours()
-    if (hour < 12) return "morning"
-    if (hour < 18) return "afternoon"
-    return "evening"
-  })
+  useEffect(() => {
+    // Move localStorage access to useEffect
+    const storedName = localStorage.getItem('userName')
+    if (storedName) {
+      setUserName(storedName)
+    }
+  }, [])
 
   const welcomeMessages = [
     `Ready to take control of your finances, ${userName}?`,
@@ -1214,7 +1213,7 @@ export default function Dashboard() {
                             <p className="text-sm text-gray-500 dark:text-gray-400">{tool.description}</p>
         </div>
                         </div>
-                        <Switch />
+                        <ToggleLeft />
                       </div>
                     ))}
                   </div>

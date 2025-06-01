@@ -29,15 +29,13 @@ export const metadata: Metadata = {
     description: 'Track your expenses with ease using PocketLedger, the lightweight and intuitive expense tracking app.',
     creator: '@pocketledger',
   },
-  viewport: {
-    width: 'device-width',
-    initialScale: 1,
-    maximumScale: 1,
-  },
-  robots: {
-    index: true,
-    follow: true,
-  },
+}
+
+export const viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
 }
 
 export default function RootLayout({
@@ -46,8 +44,8 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="en" suppressHydrationWarning>
-      <body className={inter.className}>
+    <html lang="en" suppressHydrationWarning className="scroll-smooth">
+      <body className={`${inter.className} antialiased`}>
         <AuthProvider>
           <ThemeProvider
             attribute="class"
